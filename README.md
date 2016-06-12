@@ -1,2 +1,2 @@
 # mlnd-capstone
-Capstone project for Udacity Machine Learning Nanp Degree
+Capstone project for Udacity Machine Learning Nano Degree
