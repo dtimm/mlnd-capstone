@@ -3,14 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-def cluster_results(reduced_data, preds, centers):
+def cluster_results(data, preds, centers):
 	'''
 	Visualizes the PCA-reduced cluster data in two dimensions
-	Adds cues for cluster centers and student-selected sample data
 	'''
 
 	predictions = pd.DataFrame(preds, columns = ['Cluster'])
-	plot_data = pd.concat([predictions, reduced_data], axis = 1)
+	plot_data = pd.concat([predictions, data], axis = 1)
 
 	# Generate the cluster plot
 	fig, ax = plt.subplots(figsize = (14,8))
@@ -30,7 +29,7 @@ def cluster_results(reduced_data, preds, centers):
 	    ax.scatter(x = c[0], y = c[1], marker='$%d$'%(i), alpha = 1, s=100);
 
 	# Set plot title
-	ax.set_title("Cluster Learning on PCA-Reduced Data - Centroids Marked by Number\nTransformed Sample Data Marked by Black Cross");
+	ax.set_title("Cluster Learning on Denver Crime Data - Centroids Marked by Number");
 
 # analyze the data to see if we can find some clusters by location and
 # by OFFENSE_CATEGORY_ID
@@ -69,33 +68,49 @@ data.drop('OFFENSE_CATEGORY_ID', axis=1, inplace=True)
 crimes = {}
 for col_head in data.columns.tolist()[3:]:
 	# create a dict with each of the crimes as keys, reindex each from 0
-	crimes[col_head] = data[data[col_head] == 1.0][data.columns.tolist()[1:3]].copy(deep=False)
+	crimes[col_head] = data[data[col_head] == 1.0][data.columns.tolist()[:3]].copy(deep=False)
 	crimes[col_head].reset_index(inplace=True)
 	crimes[col_head].drop('index', axis=1, inplace=True)
 
-crime = crimes['burglary']
+print crimes.keys()
 #plt.scatter(crime['GEO_LAT'], crime['GEO_LON'])
 #plt.show()
 
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-print crime.head()
+#print crime.head()
+# drop the crimes and dates from the table and re-index.
+data.drop(data.columns[3:], axis=1, inplace=True)
+data.reset_index(inplace=True)
+data.drop('index', axis=1, inplace=True)
+
+# we don't need the date here anymore, it's in the crime lists
+data.drop('FIRST_OCCURRENCE_DATE', axis=1, inplace=True)
 
 # determine a good cluster number if there is one
-for i in [2,13,]:
-    clusterer = KMeans(random_state=42, n_clusters=i).fit(crime)
+#for i in range(2,30):
+clusterer = KMeans(random_state=42, n_clusters=16).fit(data.sample(1000, random_state=42))
 
-    # Predict the cluster for each data point
-    preds = clusterer.predict(crime)
+# Find the cluster centers
+centers = clusterer.cluster_centers_
+#print centers
 
-    # Find the cluster centers
-    centers = clusterer.cluster_centers_
+# calculate silhouette scores for each crime
+for crime_name, crime in crimes.iteritems():
+	# Predict the cluster for each data point
+	preds = clusterer.predict(crime[crime.columns.tolist()[1:3]])
+	
+	# Calculate the mean silhouette coefficient for the number of clusters chosen
+	#score = silhouette_score(crime, preds)
+	#print crime_name, score
 
-    # Calculate the mean silhouette coefficient for the number of clusters chosen
-    score = silhouette_score(crime, preds)
-    print i, score
+	# Display the results of the clustering from implementation
+	#cluster_results(crime, preds, centers)
+	#plt.show()
 
-    # Display the results of the clustering from implementation
-    #cluster_results(crime, preds, centers)
-    #plt.show()
+	# add prediction to each data point
+	predictions = pd.DataFrame(preds, columns = ['Cluster'])
+	crime = pd.concat([predictions, crime], axis = 1)
+
+	crime.to_csv('./data/'+crime_name+'.csv', index=False)
