@@ -45,7 +45,7 @@ data.drop(['INCIDENT_ID','OFFENSE_ID','OFFENSE_CODE','OFFENSE_CODE_EXTENSION',
 data.dropna(inplace=True)
 data.drop(data[data['GEO_LAT'] < 1.0].index, axis=0, inplace=True)
 # drop traffic data
-data.drop(data[data['IS_TRAFFIC'] == 1].index, axis=0, inplace=True)
+data.drop(data[data['IS_CRIME'] == 0].index, axis=0, inplace=True)
 data.drop(['IS_TRAFFIC','IS_CRIME'], axis=1, inplace=True)
 
 # process dates
@@ -135,3 +135,5 @@ for crime_name, crime in crimes.iteritems():
 
 	crime.to_csv('./data/'+crime_name+'.csv', index=False)
 '''
+
+print 'Done.'

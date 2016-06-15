@@ -5,6 +5,8 @@ import json
 
 # get weather data from 2011-01-01 through 2015-12-31 
 # and associate it to each Cluster #
+MIN_DATE = '2012-01-01'
+MAX_DATE = '2015-12-31'
 
 wunderground = 'http://api.wunderground.com/api/0756dd242071d413'
 test = wunderground + '/history_20120101/q/80230.json'
@@ -15,7 +17,7 @@ test = wunderground + '/history_20120101/q/80230.json'
 #print resp.text
 
 # make sure all dates and clusters are represented
-all_dates = pd.date_range('2012-01-01', '2015-12-31')
+all_dates = pd.date_range(MIN_DATE, MAX_DATE)
 all_dates = all_dates.to_series().apply(lambda x: x.strftime('%Y-%m-%d'))
 all_clusters = range(0,16)
 
@@ -46,8 +48,8 @@ weather.set_index(['Date'], inplace=True)
 
 # load crime file, drom 2011 and 2016 because of incomplete data
 crime = pd.read_csv('./data/data_clean.csv')
-crime = crime[crime['Date'] < '2016-01-01']
-crime = crime[crime['Date'] >= '2012-01-01']
+crime = crime[crime['Date'] < MAX_DATE]
+crime = crime[crime['Date'] >= MIN_DATE]
 
 crime.set_index(['Date', 'Cluster'], inplace=True)
 
@@ -56,3 +58,5 @@ crime_weather = crime_weather.combine_first(weather)
 #crime_weather = crime_weather.merge(crime_weather, weather, left_index=True, right_index=True, how='left')
 
 crime_weather.to_csv('data/crime_weather.csv')
+
+print 'Done.'
