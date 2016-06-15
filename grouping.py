@@ -65,6 +65,7 @@ data.drop('OFFENSE_CATEGORY_ID', axis=1, inplace=True)
 #pca = PCA(copy=True).fit(data[data.columns.tolist()[1:]])
 #print np.cumsum(pca.explained_variance_)
 
+'''
 crimes = {}
 for col_head in data.columns.tolist()[3:]:
 	# create a dict with each of the crimes as keys, reindex each from 0
@@ -75,27 +76,46 @@ for col_head in data.columns.tolist()[3:]:
 print crimes.keys()
 #plt.scatter(crime['GEO_LAT'], crime['GEO_LON'])
 #plt.show()
+'''
 
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 #print crime.head()
 # drop the crimes and dates from the table and re-index.
-data.drop(data.columns[3:], axis=1, inplace=True)
+#data.drop(data.columns[3:], axis=1, inplace=True)
 data.reset_index(inplace=True)
 data.drop('index', axis=1, inplace=True)
 
 # we don't need the date here anymore, it's in the crime lists
-data.drop('FIRST_OCCURRENCE_DATE', axis=1, inplace=True)
+#data.drop('FIRST_OCCURRENCE_DATE', axis=1, inplace=True)
 
 # determine a good cluster number if there is one
 #for i in range(2,30):
-clusterer = KMeans(random_state=42, n_clusters=16).fit(data.sample(1000, random_state=42))
+clusterer = KMeans(random_state=42, n_clusters=16).fit(data[data.columns.tolist()[1:3]].sample(1000, random_state=42))
 
+preds = clusterer.predict(data[data.columns.tolist()[1:3]])
+predictions = pd.DataFrame(preds, columns = ['Cluster'])
+data = pd.concat([predictions, data], axis = 1)
+
+data['Date'] = pd.to_datetime(data['FIRST_OCCURRENCE_DATE']).apply(lambda x: x.strftime('%Y-%m-%d'))
+data.drop('FIRST_OCCURRENCE_DATE', axis=1, inplace=True)
+data.drop('GEO_LAT', axis=1, inplace=True)
+data.drop('GEO_LON', axis=1, inplace=True)
+
+aggregater = {}
+for col_head in data.columns.tolist()[1:14]:
+	aggregater[col_head] = 'sum'
+
+data = data.groupby(['Date','Cluster']).agg(aggregater)
+
+#data[col_head] = data.groupby(['Date','Cluster'])[col_head].agg({col_head:'sum'})#.transform('count')
+
+data.to_csv('./data/data_clean.csv')
 # Find the cluster centers
 centers = clusterer.cluster_centers_
 #print centers
-
+'''
 # calculate silhouette scores for each crime
 for crime_name, crime in crimes.iteritems():
 	# Predict the cluster for each data point
@@ -114,3 +134,4 @@ for crime_name, crime in crimes.iteritems():
 	crime = pd.concat([predictions, crime], axis = 1)
 
 	crime.to_csv('./data/'+crime_name+'.csv', index=False)
+'''
