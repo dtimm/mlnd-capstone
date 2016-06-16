@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from os.path import isfile
+import urllib
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
@@ -33,6 +35,10 @@ def cluster_results(data, preds, centers):
 
 # analyze the data to see if we can find some clusters by location and
 # by OFFENSE_CATEGORY_ID
+
+# check for crime.csv, download it.
+if not isfile('data/crime.csv'):
+	urllib.urlretrieve('http://data.denvergov.org/download/gis/crime/csv/crime.csv', 'data/crime.csv')
 
 # load crime data, remove most features.
 data = pd.read_csv('./data/crime.csv')
