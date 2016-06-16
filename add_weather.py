@@ -5,16 +5,28 @@ import json
 
 # get weather data from 2011-01-01 through 2015-12-31 
 # and associate it to each Cluster #
-MIN_DATE = '2012-01-01'
+MIN_DATE = '2013-01-01'
 MAX_DATE = '2015-12-31'
 
-wunderground = 'http://api.wunderground.com/api/0756dd242071d413'
-test = wunderground + '/history_20120101/q/80230.json'
+key_file = open('data/api.key', 'r')
+wu_key = key_file.readline()
+wunderground = 'http://api.wunderground.com/api/{0}/history_{1}/q/{2}.json'
+#test = wunderground + '/history_20120101/q/80219.json'
 #resp = requests.get(test)
 
-#f = open('./data/80230.json', 'a')
-#f.write(test + resp.text)
-#print resp.text
+'''
+for zip in [80230,80219,80211,80249,80222,80203,80239,80204,
+            80231,80219,80206,80227,80205,80207,80202]:
+    f = open('data/{0}_weather.csv'.format(zip), 'a')
+    for date in pd.date_range(MIN_DATE, MAX_DATE):
+        mod_date = date.strftime('%Y%m%d')
+        query = wunderground.format(wu_key, mod_date, zip)
+        #print query
+        datum = pd.read_json(query)['history']['dailysummary']
+        #print '{0} temp: {1}'.format(date.strftime('%Y-%m-%d'), datum[0])
+        f.write('{0}'.format(datum[0]))
+    f.close()
+'''
 
 # make sure all dates and clusters are represented
 all_dates = pd.date_range(MIN_DATE, MAX_DATE)
