@@ -102,7 +102,7 @@ clusterer = KMeans(random_state=42, n_clusters=16).fit(data[data.columns.tolist(
 
 preds = clusterer.predict(data[data.columns.tolist()[1:3]])
 predictions = pd.DataFrame(preds, columns = ['Cluster'])
-data = pd.concat([predictions, data], axis = 1)
+#data = pd.concat([predictions, data], axis = 1)
 
 data['Date'] = pd.to_datetime(data['FIRST_OCCURRENCE_DATE']).apply(lambda x: x.strftime('%Y-%m-%d'))
 data.drop('FIRST_OCCURRENCE_DATE', axis=1, inplace=True)
@@ -113,7 +113,7 @@ aggregater = {}
 for col_head in data.columns.tolist()[1:14]:
 	aggregater[col_head] = 'sum'
 
-data = data.groupby(['Date','Cluster']).agg(aggregater)
+data = data.groupby(['Date']).agg(aggregater)
 
 #data[col_head] = data.groupby(['Date','Cluster'])[col_head].agg({col_head:'sum'})#.transform('count')
 
