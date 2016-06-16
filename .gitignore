@@ -89,7 +89,9 @@ ENV/
 .ropeproject
 
 # Ignore data directory
-/data
+/data/api.key
+/data/crime_weather.csv
+/data/data_clean.csv
 
 # Ignore vscode files
 /.vscode

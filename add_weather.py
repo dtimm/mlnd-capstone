@@ -6,7 +6,7 @@ import json
 
 # get weather data from 2011-01-01 through 2015-12-31 
 # and associate it to each Cluster #
-MIN_DATE = '2013-01-01'
+MIN_DATE = '2013-08-23'
 MAX_DATE = '2015-12-31'
 
 '''
@@ -35,15 +35,15 @@ all_dates = pd.date_range(MIN_DATE, MAX_DATE)
 all_dates = all_dates.to_series().apply(lambda x: x.strftime('%Y-%m-%d'))
 all_clusters = range(0,16)
 
-date_clusters = pd.MultiIndex.from_product([all_dates], names=['Date'])
+date_clusters = pd.MultiIndex.from_product([all_dates, all_clusters], names=['Date', 'Cluster'])
 
 columns = [ 'all-other-crimes', 'murder','arson','auto-theft',
             'theft-from-motor-vehicle','drug-alcohol','larceny',
             'aggravated-assault','other-crimes-against-persons',
-            'robbery','burglary','white-collar-crime', 'public-disorder']
+            'robbery','burglary','traffic-accident','white-collar-crime', 'public-disorder']
 crime_weather = pd.DataFrame(0.0, index=date_clusters, columns=columns)
 
-weather = pd.read_csv('data/cluster00_weather.csv')
+weather = pd.read_csv('data/weather.csv')
 
 # format the weather data and drop some columns
 weather['Date'] = pd.to_datetime(weather['Date'], format='%Y-%m-%d').apply(lambda x: x.strftime('%Y-%m-%d'))
@@ -71,7 +71,7 @@ crime = pd.read_csv('./data/data_clean.csv')
 crime = crime[crime['Date'] <= MAX_DATE]
 crime = crime[crime['Date'] >= MIN_DATE]
 
-crime.set_index(['Date'], inplace=True)
+crime.set_index(['Date', 'Cluster'], inplace=True)
 
 crime_weather.update(crime)
 crime_weather = crime_weather.combine_first(weather)
