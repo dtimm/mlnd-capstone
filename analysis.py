@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import sklearn.metrics as sk
 
 from sklearn.cross_validation import train_test_split, KFold
 from sklearn.preprocessing import StandardScaler
@@ -23,8 +24,10 @@ def mlp(x, weights, biases):
 crime_weather = pd.read_csv('data/crime_weather.csv')
 
 crimes = crime_weather.columns.tolist()[12:]
-target = crime_weather[crimes]
+target = crime_weather['all-other-crimes']
 crime_weather.drop(crimes, axis=1, inplace=True)
+
+crimes = ['all-other-crimes']
 crime_weather.drop('Date', axis=1, inplace=True)
 crime_weather.fillna(0.0, inplace=True)
 
@@ -49,9 +52,9 @@ X_tr = pd.DataFrame(X_tr)
 y_tr = pd.DataFrame(y_tr)
 
 input_count = len(crime_weather.columns)
-hidden1 = 32
-hidden2 = 32
-output_count = len(crimes)
+hidden1 = 16
+hidden2 = 16
+output_count = 1#len(crimes)
 
 X = tf.placeholder('float', [None, input_count])
 y = tf.placeholder('float', [None, output_count])
@@ -70,7 +73,7 @@ biases = {
 
 predictor = mlp(X, weights, biases)
 
-cost = tf.reduce_mean(tf.square(predictor - y))
+cost = tf.reduce_mean(tf.square(tf.sub(y, predictor)))
 optimize = tf.train.GradientDescentOptimizer(learning_rate=0.0001).minimize(cost)
 
 init = tf.initialize_all_variables()
@@ -78,8 +81,8 @@ init = tf.initialize_all_variables()
 with tf.Session() as sess:
     sess.run(init)
 
-    epoch_count = 20
-    batch_count = 10
+    epoch_count = 100
+    batch_count = 50
     for i in xrange(epoch_count):
         average_cost = 0.0
         kf = KFold(len(X_tr), n_folds=batch_count)
@@ -89,11 +92,14 @@ with tf.Session() as sess:
 
             average_cost += c
         print 'epoch {0}: {1}'.format(i, average_cost / batch_count)
-
-    correct_prediction = tf.equal(tf.argmax(predictor, 1), tf.argmax(y, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-    print "Accuracy Train: ", accuracy.eval({X: X_tr, y: y_tr})
-    print "Accuracy Test:  ", accuracy.eval({X: X_ts, y: y_ts})
+    
+    y_predicted = pd.DataFrame(sess.run(predictor, feed_dict={X:X_tr}), columns=crimes)
+    y_tspredicted = pd.DataFrame(sess.run(predictor, feed_dict={X:X_ts}), columns=crimes)
+    
+    train_score = sk.mean_squared_error(y_tr, y_predicted)
+    test_score = sk.mean_squared_error(y_ts, y_tspredicted)
+    print "Accuracy Train: ", train_score #accuracy.eval({X: X_tr, y: y_tr})
+    print "Accuracy Test:  ", test_score #accuracy.eval({X: X_ts, y: y_ts})
     
     today_predictions = sess.run(predictor, feed_dict={X:today})
     today_predictions = pd.DataFrame(today_predictions, columns=crimes)
