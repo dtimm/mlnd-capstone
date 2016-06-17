@@ -2,23 +2,21 @@ import pandas as pd
 import numpy as np
 
 from sklearn.cross_validation import train_test_split, KFold
-from sklearn.linear_model import Perceptron
-from sklearn.grid_search import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 
 import tensorflow as tf
 
 # Create model
 def mlp(x, weights, biases):
-    # Hidden layer with RELU activation
+    # Hidden layer 1, relu activation
     layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
     layer_1 = tf.nn.relu(layer_1)
-    # Hidden layer with RELU activation
+    # Hidden layer 2, relu activation
     layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
     layer_2 = tf.nn.relu(layer_2)
-    # Output layer with linear activation
-    out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
-    return out_layer
+    # Output, linear activation
+    out = tf.matmul(layer_2, weights['out']) + biases['out']
+    return out
 
 # perform some sort of analysis on the crime_weather.csv data
 
@@ -31,7 +29,7 @@ crime_weather.drop('Date', axis=1, inplace=True)
 crime_weather.fillna(0.0, inplace=True)
 
 today = []
-for i in xrange(16):
+for i in xrange(1):
     today.append([i, 15, 88, 8, 29.72, 74, 10, 24, 62, 6, 4])
 
 today = pd.DataFrame(today)
@@ -51,8 +49,8 @@ X_tr = pd.DataFrame(X_tr)
 y_tr = pd.DataFrame(y_tr)
 
 input_count = len(crime_weather.columns)
-hidden1 = 128
-hidden2 = 128
+hidden1 = 32
+hidden2 = 32
 output_count = len(crimes)
 
 X = tf.placeholder('float', [None, input_count])
@@ -72,15 +70,15 @@ biases = {
 
 predictor = mlp(X, weights, biases)
 
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(predictor, y))
-optimize = tf.train.AdamOptimizer(learning_rate=0.01).minimize(cost)
+cost = tf.reduce_mean(tf.square(predictor - y))
+optimize = tf.train.GradientDescentOptimizer(learning_rate=0.0001).minimize(cost)
 
 init = tf.initialize_all_variables()
 
 with tf.Session() as sess:
     sess.run(init)
 
-    epoch_count = 10
+    epoch_count = 20
     batch_count = 10
     for i in xrange(epoch_count):
         average_cost = 0.0
@@ -96,6 +94,10 @@ with tf.Session() as sess:
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
     print "Accuracy Train: ", accuracy.eval({X: X_tr, y: y_tr})
     print "Accuracy Test:  ", accuracy.eval({X: X_ts, y: y_ts})
+    
+    today_predictions = sess.run(predictor, feed_dict={X:today})
+    today_predictions = pd.DataFrame(today_predictions, columns=crimes)
+    print today_predictions
 
 
 
