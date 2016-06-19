@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import sklearn.metrics as sk
+import time
 
 from sklearn.cross_validation import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -17,9 +18,15 @@ crime_weather.drop(crimes, axis=1, inplace=True)
 crime_weather.drop('Date', axis=1, inplace=True)
 crime_weather.fillna(0.0, inplace=True)
 
+key_file = open('data/api.key', 'r')
+wu_key = key_file.readline()
+today_date = time.strftime('%Y%m%d')
+wunderground = 'http://api.wunderground.com/api/{0}/history_{1}/q/80249.json'.format(wu_key, today_date)
+datum = pd.read_json(wunderground)['history']['dailysummary']
+
 today = []
 for i in xrange(16):
-    today.append([i, 15, 88, 8, 29.72, 74, 10, 24, 62, 6, 4])
+    today.append([i, datum[0]['maxwspdi'], datum[0]['maxtempi'], datum[0]['maxhumidity'], datum[0]['meanpressurei'], datum[0]['meantempi'], datum[0]['meanvisi'], datum[0]['meandewpti'], datum[0]['mintempi'], time.strftime('%m'), time.strftime('%w')])
 
 today = pd.DataFrame(today)
 
@@ -38,7 +45,7 @@ params = {}
 '''params = { 
             'max_depth':[2, 5, 7, 10],
             'min_samples_split':[20,30,50],
-            'max_features':[None]
+            'max_features':[None, 2, 4, 8]
          }'''
 gscv = GridSearchCV(reg, params, cv=5)
 
@@ -48,6 +55,6 @@ print gscv.best_estimator_
 
 print 'TR Score: {0}'.format(gscv.score(X_tr, y_tr))
 print 'TS Score: {0}'.format(gscv.score(X_ts, y_ts))
-#print 'Today: {0}'.format(pd.DataFrame(gscv.predict(today), columns=crimes))
+print 'Today: {0}'.format(pd.DataFrame(gscv.predict(today), columns=crimes))
 #print pd.DataFrame(gscv.predict(X_ts)).describe()
 #print pd.DataFrame(y_ts).describe()
