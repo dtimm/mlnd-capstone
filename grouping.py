@@ -117,7 +117,10 @@ data = data.groupby(['Date', 'Cluster']).agg(aggregater)
 
 #data[col_head] = data.groupby(['Date','Cluster'])[col_head].agg({col_head:'sum'})#.transform('count')
 
-data.to_csv('./data/data_clean.csv')
+data.to_csv('data/data_clean.csv')
+centers = pd.DataFrame(clusterer.cluster_centers_)
+centers.to_csv('data/centers.csv')
+
 # Find the cluster centers
 #centers = clusterer.cluster_centers_
 #print centers

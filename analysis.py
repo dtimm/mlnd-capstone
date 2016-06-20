@@ -1,4 +1,4 @@
-import time
+import datetime
 import pandas as pd
 import numpy as np
 import sklearn.metrics as sk
@@ -20,13 +20,14 @@ crime_weather.fillna(0.0, inplace=True)
 
 key_file = open('data/api.key', 'r')
 wu_key = key_file.readline()
-#yesterday_date = time.strftime('%Y%m%d')
+today_date = datetime.date.today()
+yesterday_date = (today_date - datetime.timedelta(days=1))
 wunderground = 'http://api.wunderground.com/api/{0}/yesterday/q/80249.json'.format(wu_key)
 datum = pd.read_json(wunderground)['history']['dailysummary']
 
 yesterday = []
 for i in xrange(16):
-    yesterday.append([i, datum[0]['maxwspdi'], datum[0]['maxtempi'], datum[0]['maxhumidity'], datum[0]['meanpressurei'], datum[0]['meantempi'], datum[0]['meanvisi'], datum[0]['meandewpti'], datum[0]['mintempi'], time.strftime('%m'), time.strftime('%w')])
+    yesterday.append([i, datum[0]['maxwspdi'], datum[0]['maxtempi'], datum[0]['maxhumidity'], datum[0]['meanpressurei'], datum[0]['meantempi'], datum[0]['meanvisi'], datum[0]['meandewpti'], datum[0]['mintempi'], yesterday_date.strftime('%m'), yesterday_date.strftime('%w')])
 
 yesterday = pd.DataFrame(yesterday)
 

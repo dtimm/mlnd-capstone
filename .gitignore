@@ -92,6 +92,7 @@ ENV/
 /data/api.key
 /data/crime_weather.csv
 /data/data_clean.csv
+/data/centers.csv
 
 # Ignore vscode files
 /.vscode
