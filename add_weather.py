@@ -65,6 +65,7 @@ weather['Month'] = pd.to_datetime(weather['Date']).apply(lambda x: x.strftime('%
 weather = weather[weather['Date'] <= MAX_DATE]
 weather = weather[weather['Date'] >= MIN_DATE]
 weather.set_index(['Date'], inplace=True)
+weather.fillna(0.0, inplace=True)
 
 # load crime file, drom 2011 and 2016 because of incomplete data
 crime = pd.read_csv('./data/data_clean.csv')
