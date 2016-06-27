@@ -1,8 +1,8 @@
+#from os.path import isfile
 import pandas as pd
-import numpy as np
-from os.path import isfile
-import requests
-import json
+#import numpy as np
+#import requests
+#import json
 
 # get weather data from 2011-01-01 through 2015-12-31 
 # and associate it to each Cluster #

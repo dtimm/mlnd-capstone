@@ -1,44 +1,44 @@
+from os.path import isfile
 import pandas as pd
 import numpy as np
-from os.path import isfile
 import urllib
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 def cluster_results(data, preds, centers):
-	'''
-	Visualizes the PCA-reduced cluster data in two dimensions
-	'''
+    '''
+    Visualizes the PCA-reduced cluster data in two dimensions
+    '''
 
-	predictions = pd.DataFrame(preds, columns = ['Cluster'])
-	plot_data = pd.concat([predictions, data], axis = 1)
+    predictions = pd.DataFrame(preds, columns = ['Cluster'])
+    plot_data = pd.concat([predictions, data], axis = 1)
 
-	# Generate the cluster plot
-	fig, ax = plt.subplots(figsize = (14,8))
+    # Generate the cluster plot
+    fig, ax = plt.subplots(figsize = (14,8))
 
-	# Color map
-	cmap = cm.get_cmap('viridis')
+    # Color map
+    cmap = cm.get_cmap('viridis')
 
-	# Color the points based on assigned cluster
-	for i, cluster in plot_data.groupby('Cluster'):   
-	    cluster.plot(ax = ax, kind = 'scatter', x = 'GEO_LON', y = 'GEO_LAT', \
-	                 color = cmap((i)*1.0/(len(centers)-1)), label = 'Cluster %i'%(i), s=30);
+    # Color the points based on assigned cluster
+    for i, cluster in plot_data.groupby('Cluster'):   
+        cluster.plot(ax = ax, kind = 'scatter', x = 'GEO_LON', y = 'GEO_LAT', \
+                     color = cmap((i)*1.0/(len(centers)-1)), label = 'Cluster %i'%(i), s=30)
 
-	# Plot centers with indicators
-	for i, c in enumerate(centers):
-	    ax.scatter(x = c[0], y = c[1], color = 'white', edgecolors = 'black', \
-	               alpha = 1, linewidth = 2, marker = 'o', s=200);
-	    ax.scatter(x = c[0], y = c[1], marker='$%d$'%(i), alpha = 1, s=100);
+    # Plot centers with indicators
+    for i, c in enumerate(centers):
+        ax.scatter(x = c[0], y = c[1], color = 'white', edgecolors = 'black', \
+                   alpha = 1, linewidth = 2, marker = 'o', s=200)
+        ax.scatter(x = c[0], y = c[1], marker='$%d$'%(i), alpha = 1, s=100)
 
-	# Set plot title
-	ax.set_title("Cluster Learning on Denver Crime Data - Centroids Marked by Number");
+    # Set plot title
+    ax.set_title("Cluster Learning on Denver Crime Data - Centroids Marked by Number")
 
 # analyze the data to see if we can find some clusters by location and
 # by OFFENSE_CATEGORY_ID
 
 # check for crime.csv, download it.
 if not isfile('data/crime.csv'):
-	urllib.urlretrieve('http://data.denvergov.org/download/gis/crime/csv/crime.csv', 'data/crime.csv')
+    urllib.urlretrieve('http://data.denvergov.org/download/gis/crime/csv/crime.csv', 'data/crime.csv')
 
 # load crime data, remove most features.
 data = pd.read_csv('./data/crime.csv')
