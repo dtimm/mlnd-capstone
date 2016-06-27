@@ -37,9 +37,9 @@ all_clusters = range(0,16)
 
 date_clusters = pd.MultiIndex.from_product([all_dates, all_clusters], names=['Date', 'Cluster'])
 
-columns = [ 'all-other-crimes', 'murder','arson','auto-theft',
-            'theft-from-motor-vehicle','drug-alcohol','larceny',
-            'aggravated-assault','other-crimes-against-persons',
+columns = [ 'all-other-crimes', 'murder','arson','auto-theft', 
+            'theft-from-motor-vehicle','drug-alcohol','larceny', 
+            'aggravated-assault','other-crimes-against-persons', 
             'robbery','burglary','traffic-accident','white-collar-crime', 'public-disorder']
 crime_weather = pd.DataFrame(0.0, index=date_clusters, columns=columns)
 

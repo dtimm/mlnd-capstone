@@ -25,7 +25,10 @@ datum = pd.read_json(wunderground)['history']['dailysummary']
 
 yesterday = []
 for i in xrange(16):
-    yesterday.append([i, datum[0]['maxwspdi'], datum[0]['maxtempi'], datum[0]['maxhumidity'], datum[0]['meanpressurei'], datum[0]['meantempi'], datum[0]['meanvisi'], datum[0]['meandewpti'], datum[0]['mintempi'], yesterday_date.strftime('%m'), yesterday_date.strftime('%w')])
+    yesterday.append([i, datum[0]['maxwspdi'], datum[0]['maxtempi'], \
+    datum[0]['maxhumidity'], datum[0]['meanpressurei'], datum[0]['meantempi'], \
+    datum[0]['meanvisi'], datum[0]['meandewpti'], datum[0]['mintempi'], \
+    yesterday_date.strftime('%m'), yesterday_date.strftime('%w')])
 
 yesterday = pd.DataFrame(yesterday)
 
