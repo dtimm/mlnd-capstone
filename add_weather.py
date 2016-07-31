@@ -6,7 +6,7 @@ import pandas as pd
 
 # get weather data from 2011-01-01 through 2015-12-31 
 # and associate it to each Cluster #
-MIN_DATE = '2013-08-23'
+MIN_DATE = '2014-01-01'
 MAX_DATE = '2015-12-31'
 
 '''
